@@ -1,0 +1,40 @@
+{% extends 'store/base.html' %}
+{% block title %}
+    添加商品
+{% endblock %}
+
+{% block content %}
+
+    <div style="width: 600px;height: 100%; margin:auto;">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <input type="text" class="form-control form-control-user" name="good_name" placeholder="商品名称">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control form-control-user" name="good_price" placeholder="商品价格">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control form-control-user" name="good_description" placeholder="商品描述">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control form-control-user" name="good_number" placeholder="商品数量库存">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control form-control-user" name="good_date" placeholder="商品出厂日期(YY-MM-DD)">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control form-control-user" name="good_safeDate" placeholder="商品保质期(月)">
+        </div>
+        <div class="form-group">
+            <input type="file" class="form-control form-control-user" name="good_image" placeholder="商品图片">
+        </div>
+        <div class="form-group">
+            <input type="hidden" class="form-control form-control-user" name="good_store" placeholder="商品店铺号" value="{{ request.COOKEIES.has_store }}">
+        </div>
+        <div>
+            <input class="btn btn-primary btn-block" type="submit" value="注册">
+        </div>
+    </form>
+    </div>
+{% endblock %}

@@ -37,8 +37,8 @@ class Store(models.Model):
 # 商品模型
 class Goods(models.Model):
     good_name = models.CharField(max_length=32,verbose_name='商品名称')
-    good_price = models.FloatField(verbose_name='价格')
-    good_image = models.ImageField(upload_to='store/images',verbose_name='商品名称')
+    good_price = models.FloatField(verbose_name='商品价格')
+    good_image = models.ImageField(upload_to='store/images',verbose_name='商品图片')
     good_number = models.IntegerField(verbose_name='商品数量库存')
     good_description = models.TextField(verbose_name='商品描述')
     good_date = models.DateField(verbose_name='商品出厂日期')
