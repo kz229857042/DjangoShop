@@ -171,6 +171,7 @@ def register_store(request):
 # 商品的增加
 @cookie_user
 def add_goods(request):
+    goods_type = models.GoodsType.objects.all()
     if request.method=='POST':
         good_name = request.POST.get('good_name')
         good_price = request.POST.get('good_price')
@@ -180,6 +181,7 @@ def add_goods(request):
         good_safeDate = request.POST.get('good_safeDate')
         good_store = request.COOKIES.get('has_store')
         good_image = request.FILES.get('good_image')
+        good_type = request.POST.get('good_type')
 
         # 保存数据库 处理普通关系
         goods = models.Goods()
@@ -190,6 +192,7 @@ def add_goods(request):
         goods.good_date=good_date
         goods.good_safeDate=good_safeDate
         goods.good_image=good_image
+        goods.good_type = models.GoodsType.objects.get(id=good_type)
         goods.save()
 
         # 保存多对多数据
@@ -197,12 +200,16 @@ def add_goods(request):
             models.Store.objects.get(id= int(good_store))
         )
         goods.save()
-        return HttpResponseRedirect('/Store/list_goods/')
-    return render(request,'store/add_goods.html')
+        return HttpResponseRedirect('/Store/list_goods/up/')
+    return render(request,'store/add_goods.html',locals())
 
 # 商品列表的展示
 @cookie_user
-def list_goods(request):
+def list_goods(request,state):
+    if state == 'up':
+        state_num = 1
+    else:
+        state_num=0
     # 获取keywords的值
     keywords = request.GET.get('keywords','')
     # 获取分页
@@ -213,9 +220,9 @@ def list_goods(request):
     #   判断是否存在，如果存在进行模糊查询
     if keywords:
         # 模糊查询 good_name 是要查询数据库的关键词 ，__contains  是模糊查询
-        list_goods = store.goods_set.filter(good_name__contains=keywords)
+        list_goods = store.goods_set.filter(good_name__contains=keywords,good_state=state_num)
     else:
-        list_goods =store.goods_set.all()
+        list_goods =store.goods_set.filter(good_state=state_num)
     # 对list_goods的数据进行分页，每3条数据为一页
     paginator = Paginator(list_goods,3)
     p = int(page_num)
@@ -228,13 +235,30 @@ def list_goods(request):
     page_range = paginator.page_range[start:end]
 
     # 由于不是所有内容都返回，所以不用locals，而选择字符串
-    return render(request,'store/list_goods.html',{'page':page,'page_range':page_range,'keywords':keywords})
+    return render(request,'store/list_goods.html',{'page':page,'page_range':page_range,'keywords':keywords,"state":state})
 
-# 商品列表的删除
-def del_goods(request):
-    # 获取点击删除的那个按键的id
-    pass
 
+# 商品上下架功能
+def set_goods(request,state):
+    # 设置商品状态
+    if state == 'up':
+        state_num = 1
+    else:
+        state_num = 0
+    id = request.GET.get('id')
+    referer = request.META.get('HTTP_REFERER')  # 返回当前请求的来源地址
+    if id:
+        goods = models.Goods.objects.filter(id = id).first()
+        if state == 'delete':
+            goods.delete()
+        else:
+            goods.good_state = state_num
+            goods.save()
+
+    if referer:
+        return HttpResponseRedirect(referer)
+    else:
+        return HttpResponseRedirect('/Store/list_goods')
 
 # 商品详情
 @cookie_user
@@ -269,3 +293,94 @@ def update_goods(request,good_id):
         goods.save()
         return HttpResponseRedirect('/Store/dg/%s'%good_id)
     return render(request,'store/update_goods.html',locals())
+
+# 登出功能
+def logout(request):
+    response = HttpResponseRedirect('/Store/index/')
+    for key in request.COOKIES:
+        response.delete_cookie(key)
+    return response
+
+
+
+# 添加商品类型
+def add_goods_type(request):
+    if request.method=='POST':
+        name = request.POST.get("name")
+        description = request.POST.get('description')
+        picture = request.FILES.get('picture')
+        if name and description and picture:
+            goodsType = models.GoodsType()
+            goodsType.name = name
+            goodsType.description = description
+            goodsType.picture = picture
+            goodsType.save()
+            return HttpResponseRedirect('/Store/list_goods_type/')
+    return  render(request,'store/list_goods_type.html',locals())
+# 商品列表展示
+# def list_goods_type(request):
+#     list_goods_type_name = []
+#     # 获取keywords的值
+#     keywords = request.GET.get('keywords', '')
+#     # 获取分页
+#     page_num = request.GET.get('page_num', 1)
+#     # 查询商店
+#     store_id = request.COOKIES.get('has_store')
+#     # 通过商店ID可以获取到商店信息
+#     store = models.Store.objects.get(id=int(store_id))
+#     # 通过商店查询到所有商品
+#     good = store.goods_set.all()
+#     # print(good)
+#     #   判断是否存在，如果存在进行模糊查询
+#     if keywords:
+#         # 模糊查询 good_name 是要查询数据库的关键词 ，__contains  是模糊查询
+#         list_goods_type = models.Goods.good_type(good_name__contains=keywords)
+#     else:
+#           #最终效果 三表查询，可以查询出一条数据，具体优化还需要原生数据库语句
+#         for i in good:
+#             list_goods_type = i.good_type_id
+#             # print(list_goods_type)# 1 2 3 1 可以查到食品对应的类型ID
+#             good_type = models.GoodsType.objects.filter(id =list_goods_type )
+#             # print(good_type)# 查询
+#     # 对list_goods的数据进行分页，每3条数据为一页
+#     paginator = Paginator(good_type, 3)
+#     p = int(page_num)
+#     page = paginator.page(p)
+#     start = p - 3
+#     end = p + 2
+#     if start <= 0 and end <= 5:
+#         start = 0
+#         end = 5
+#     page_range = paginator.page_range[start:end]
+#     return render(request,'store/list_goods_type.html',{'page':page,'page_range':page_range,'keywords':keywords})
+
+# 商品类型查询 查询所有数据
+
+
+# 展示商品类型
+def list_goods_type(request):
+    keywords = request.GET.get('keywords', '')
+    # 获取分页
+    page_num = request.GET.get('page_num', 1)
+    if keywords:
+        # 模糊查询 good_name 是要查询数据库的关键词 ，__contains  是模糊查询
+        lists_goods_type = models.GoodsType.objects.filter(good_name__contains=keywords)
+    else:
+        lists_goods_type = models.GoodsType.objects.all()
+        # 对list_goods的数据进行分页，每3条数据为一页
+    paginator = Paginator(lists_goods_type, 3)
+    p = int(page_num)
+    page = paginator.page(p)
+    start = p - 3
+    end = p + 2
+    if start <= 0 and end <= 5:
+        start = 0
+        end = 5
+    page_range = paginator.page_range[start:end]
+
+    return render(request,'store/list_goods_type.html',{'page':page,'page_range':page_range,'keywords':keywords})
+
+def del_goods_type(request):
+    da = request.GET.get('id')
+    models.GoodsType.objects.get(id=da).delete()
+    return HttpResponseRedirect('/Store/list_goods_type')

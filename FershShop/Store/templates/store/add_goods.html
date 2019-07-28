@@ -32,6 +32,15 @@
         <div class="form-group">
             <input type="hidden" class="form-control form-control-user" name="good_store" placeholder="商品店铺号" value="{{ request.COOKEIES.has_store }}">
         </div>
+        <div class="form-group">
+            <select class="form-control form-control-user" name="good_type" placeholder="商品类型" >
+                {% for i in goods_type %}
+                <option value="{{ i.id }}">
+                            {{ i.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
         <div>
             <input class="btn btn-primary btn-block" type="submit" value="注册">
         </div>

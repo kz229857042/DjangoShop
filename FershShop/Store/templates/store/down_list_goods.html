@@ -1,0 +1,51 @@
+{% extends 'store/base.html' %}
+
+{% block title %}
+    商品下架页
+{% endblock %}
+
+
+{% block content %}
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <td>商品名称</td>
+                <td>商品价格</td>
+                <td>商品数量</td>
+                <td>出厂日期</td>
+                <td>保质期</td>
+                <td>操作</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for l in page %}
+                <tr>
+                    <td>{{ l.good_name }}</td>
+                    <td>{{ l.good_price }}</td>
+                    <td>{{ l.good_number }}</td>
+                    <td>{{ l.good_date |date:"Y-m-d" }}</td>
+                    <td>{{ l.good_safeDate }}个月</td>
+                    <td style="text-align: center">
+                        {% ifequal state 'up' %}
+                        <a class="btn btn-success" href="/Store/set_goods/down/id={{ l.id }}">下架</a>
+                        {% else %}
+                        <a class="btn btn-success" href="/Store/set_goods/up/id={{ l.id }}">上架</a>
+                        {% endifequal %}
+                        <a class="btn btn-primary" href="#">删除</a>
+                    </td>
+                </tr>
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+    <div class="dataTables_paginate paging_simple_numbers">
+        <ul class="pagination">
+            {% for p in page_range %}
+                <li class="paginate_button page-item ">
+                    <a class="page-link" href="?keywords={{ keywords }}&page_num={{ p }}">{{ p }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

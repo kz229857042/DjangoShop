@@ -28,9 +28,12 @@
                     <td>{{ l.good_date |date:"Y-m-d" }}</td>
                     <td>{{ l.good_safeDate }}个月</td>
                     <td style="text-align: center">
-                        <a class="btn btn-google" href="/Store/dg/{{ l.id }}">修改</a>
-                        <a class="btn btn-success" href="#">下架</a>
-                        <a class="btn btn-primary" href="#">删除</a>
+                        {% ifequal state 'up' %}
+                        <a class="btn btn-success" href="/Store/set_goods/down/?id={{ l.id }}">下架</a>
+                        {% else %}
+                        <a class="btn btn-success" href="/Store/set_goods/up/?id={{ l.id }}">上架</a>
+                        {% endifequal %}
+                        <a class="btn btn-primary" href="/Store/set_goods/delete/?id={{ l.id }} ">删除</a>
                     </td>
                 </tr>
             {% endfor %}
