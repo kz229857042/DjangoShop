@@ -17,9 +17,12 @@ urlpatterns = [
     path('list_goods_type/', list_goods_type),
     path('add_goods_type/', add_goods_type),
     path('del_goods_type/', del_goods_type),
+    path('order_list/', order_list),
+    path('order_list_all/', order_list_all),
 ]
 
 # 调试页面 需要单分出来 以后上传的时候可以删除
 urlpatterns +=[
     path('base/', base),
+    path('ajax_list_goods/', ajax_list_goods),
 ]

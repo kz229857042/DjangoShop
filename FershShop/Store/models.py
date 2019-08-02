@@ -1,5 +1,6 @@
 from django.db import models
-
+# 导入自定义类型模块
+from django.db.models import Manager
 # Create your models here.
 #  卖家模型
 class Seller(models.Model):
@@ -40,7 +41,6 @@ class GoodsType(models.Model):
     picture = models.ImageField(upload_to='buyer/images')
 
 
-
 # 商品模型
 class Goods(models.Model):
     good_name = models.CharField(max_length=32,verbose_name='商品名称')
@@ -53,7 +53,7 @@ class Goods(models.Model):
     good_state  = models.IntegerField(verbose_name='商品状态',default=1)# 待售为1 下架为0
 
     good_type = models.ForeignKey(to=GoodsType,on_delete=models.CASCADE,verbose_name='商品类型')
-    store_id = models.ManyToManyField(to=Store,verbose_name='店铺名称')
+    store_id = models.ForeignKey(to=Store,on_delete=models.CASCADE,verbose_name='店铺名称')
 
 # 商品图片模型
 class GoodsImg(models.Model):

@@ -39,35 +39,36 @@
 		<span>></span>
 		<a href="#">商品详情</a>
 	</div>
-    {% for g in goodsList %}
 	<div class="goods_detail_con clearfix">
-		<div class="goods_detail_pic fl"><img src="/static/{{ g.good_image }}"></div>
-
+		<div class="goods_detail_pic fl"><img style="width: 350px;height: 350px;" src="/static/{{ goodsList.good_image }}"></div>
+        <form action="/Buyer/place_order/" method="post">
+            {% csrf_token %}
 		<div class="goods_detail_list fr">
-			<h3>{{ g.good_name }}</h3>
-			<p>{{ g.good_description }}</p>
+			<h3>{{ goodsList.good_name }}</h3>
+			<p>{{ goodsList.good_description }}</p>
 			<div class="prize_bar">
-				<span class="show_pirze">¥<em>{{ g.good_price }}</em></span>
+				<span class="show_pirze" >¥<em id="price">{{ goodsList.good_price }}</em></span>
 				<span class="show_unit">单  位：500g</span>
 			</div>
 			<div class="goods_num clearfix">
 				<div class="num_name fl">数 量：</div>
 				<div class="num_add fl">
 
-					<input type="text" class="num_show fl" value="{% verbatim %}{{ num }}{% endverbatim %}">
-
-					<a href="javascript:;" class="add fr">+</a>
-					<a href="javascript:;" class="minus fr">-</a>
+					<input type="text" id="count" name="count" class="num_show fl" value="1">
+                    <input type="hidden" id="good_id" name="good_id" class="num_show f1" value="{{ goodsList.id }}">
+					<a href="javascript:;" class="add fr" onclick="changeNum('add')" id="add">+</a>
+					<a href="javascript:;" class="minus fr" onclick="changeNum('minus')" id="minus">-</a>
 				</div>
 			</div>
 
-			<div class="total">总价：<em>{% verbatim %}{{ total_price }}{% endverbatim %} </em></div>
+			<div class="total">总价：<em id="total">{{ goodsList.good_price }}</em><em>元</em></div>
 
 			<div class="operate_btn">
-				<a href="javascript:;" class="buy_btn">立即购买</a>
+				<input class="buy_btn" value="立即购买" type="submit">
 				<a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>
 			</div>
 		</div>
+        </form>
 	</div>
 
 	<div class="main_wrap clearfix">
@@ -98,29 +99,67 @@
 			<div class="tab_content">
 				<dl>
 					<dt>商品详情：</dt>
-					<dd>{{ g.good_description }}</dd>
+					<dd>{{ goodsList.good_description }}</dd>
 				</dl>
 			</div>
 
 		</div>
 	</div>
+{% endblock %}
         {% block script %}
+            <script src="/static/buyer/js/jquery-1.12.4.min.js"></script>
     <script>
-    new Vue({
-        el:'.goods_detail_con clearfix',
-        data:{
-            price:{{ g.good_price }},
-            num :1,
-        },
-        total_price:function () {
-            // 定义一个总价变量
-            var  zj = 0
-            zj = this.num * this.price
-            return zj
-        },
-    })
+        function changeNum(ty) {
+            // 获取数量
+            var value = $('#count').val();
+            if(ty=='add'){
+                $('#count').val(++value)
+            }else{
+                if(value<=1){
+                    $('#count').val(1)
+                }else{
+                    $('#count').val(--value)
+                }
+            }
+            var price = $('#price').text();
+            var total_price = price * value;
+            parseFloat(total_price)
+            total_price.toFixed(2)
+            $('#total').text(total_price.toFixed(1))
+        }
+
+
+        $('#add_cart').click(
+            function () {
+                console.log(1)
+                var count = $('#count').val();
+                var good_id = $('#good_id').val();
+                var csrfmiddlewaretoken='{{ csrf_token}}';
+                var sendData = {
+                    'count':count,
+                    'good_id':good_id,
+                    'csrfmiddlewaretoken':csrfmiddlewaretoken
+                };
+                var url = '/Buyer/add_cart/';
+                $.ajax(
+                    {
+                        url:url,
+                        type:'post',
+                        data:sendData,
+                        success:function (data) {
+                            alert('加入购物车成功')
+                        },
+                        error:function (data) {
+                            console.log(data)
+                        }
+                    }
+                )
+            }
+        )
     </script>
-{% endblock %}
-    {% endfor %}
-{% endblock %}
+        {% endblock %}
+
+
+
+
 

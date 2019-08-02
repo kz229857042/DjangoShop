@@ -1,0 +1,44 @@
+{% extends 'store/base.html' %}
+
+{% block title %}
+    订单管理页
+{% endblock %}
+
+{% block content %}
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <td>订单编号</td>
+                <td>订单商品</td>
+                <td>订单金额</td>
+                <td>操作</td>
+            </tr>
+        </thead>
+         <form method="post" action="/Store/order_list_all/">
+        {% csrf_token %}
+        <tbody>
+            {% for o in orderList %}
+                <tr>
+                    <td>{{ o.order_id.order_id }}</td>
+                    <td>{{ o.good_name }}</td>
+                    <td>{{ o.good_total }}</td>
+                    <td style="text-align: center">
+                        <input class="btn btn-success" value="接收订单" name="accept">
+                        <input class="btn btn-primary" value="拒绝订单" name="refuse">
+                    </td>
+                </tr>
+            {% endfor %}
+
+        </tbody>
+         </form>
+    </table>
+    <div class="dataTables_paginate paging_simple_numbers">
+        <ul class="pagination">
+            {% for p in page_range %}
+                <li class="paginate_button page-item ">
+                    <a class="page-link" href="?keywords={{ keywords }}&page_num={{ p }}">{{ p }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
